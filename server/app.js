@@ -22,21 +22,14 @@ app.post("/api/meter", async (req, res) => {
   let message = "";
   let year = null;
 
-  console.log("Received meter number:", meterNumber); // Log received meter number
 
   try {
     year = await db.getMeterYear(meterNumber);
-    console.log("Year returned from database:", year); // Log year returned from database
 
     if (year === null) {
       message = "Número de medidor no encontrado.";
-    } else if (year <= 2013) {
-      message = `Utilice el sistema para medidores viejos.`;
-    } else {
-      message = `Este medidor corresponde al sistema nuevo.`;
     }
 
-    console.log("Sending response:", { message, year }); // Log response being sent
     res.json({ message, year });
   } catch (error) {
     console.error("Error al procesar la solicitud:", error);
