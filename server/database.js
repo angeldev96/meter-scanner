@@ -1,5 +1,4 @@
 const mysql = require("mysql2/promise");
-
 require("dotenv").config();
 
 const pool = mysql.createPool({
@@ -11,16 +10,14 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-  //   ssl: {
-  //     rejectUnauthorized: false,
-  //   },
 });
 
-const databaseName = process.env.DB_NAME; // Asegúrate de que la variable de entorno DATABASE_NAME esté configurada
+const databaseName = process.env.DB_NAME;
 
 const connect = async () => {
   try {
-    await pool.getConnection();
+    const connection = await pool.getConnection();
+    connection.release();
     console.log("Conexión exitosa a la base de datos", databaseName);
   } catch (error) {
     console.error(
@@ -31,23 +28,30 @@ const connect = async () => {
   }
 };
 
-const getMeter = async (meterNumber) => {
+const getMeterYear = async (meterNumber) => {
   try {
+    console.log("Querying database for meter number:", meterNumber); // Log the meter number being queried
     const connection = await pool.getConnection();
     const [rows] = await connection.execute(
-      "SELECT * FROM meters WHERE meter_number = ?",
+      "SELECT medidor_anio FROM medidor WHERE medidor_id = ?",
       [meterNumber]
     );
     connection.release();
-    return rows;
+    console.log("Query result:", rows); // Log the raw query result
+    if (rows.length > 0) {
+      console.log("Year found:", rows[0].medidor_anio); // Log the year if found
+      return rows[0].medidor_anio;
+    } else {
+      console.log("No matching meter found in database"); // Log if no meter was found
+      return null;
+    }
   } catch (error) {
-    console.error("Error al obtener el medidor:", error);
-    return null;
+    console.error("Error al obtener el año del medidor:", error);
+    throw error;
   }
 };
 
-// Exportar las funciones
 module.exports = {
   connect,
-  getMeter,
+  getMeterYear,
 };
