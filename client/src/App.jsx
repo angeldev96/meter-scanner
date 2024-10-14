@@ -87,7 +87,7 @@ const App = () => {
               <Chip
                 label={`Usar Sistema ${systemType}`}
                 color={systemType === 'nuevo' ? 'primary' : 'default'}
-                sx={{ mb: 1 }}
+                sx={{ mb: 1, bgcolor: systemType === 'viejo' ? 'lightcoral' : 'default' }}
               />
               <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                 Año del medidor: {year}
