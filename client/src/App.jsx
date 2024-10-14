@@ -16,10 +16,21 @@ const App = () => {
   const [systemType, setSystemType] = useState(null);
 
   const handleMeterNumberChange = (event) => {
-    setMeterNumber(event.target.value);
+    setMeterNumber(event.target.value.replace(/\s+/g, ''));
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleSubmit();
+    }
   };
 
   const handleSubmit = async () => {
+    if (meterNumber.trim() === '') {
+      setMessage('El número de medidor no puede estar vacío.');
+      return;
+    }
+
     setLoading(true);
     setMessage('');
     setYear(null);
@@ -62,6 +73,7 @@ const App = () => {
             variant="outlined"
             value={meterNumber}
             onChange={handleMeterNumberChange}
+            onKeyPress={handleKeyPress}
             sx={{ mr: 2, flexGrow: 1 }}
           />
           <Button variant="contained" onClick={handleSubmit} disabled={loading}>
