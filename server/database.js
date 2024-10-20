@@ -4,7 +4,6 @@ require("dotenv").config();
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
-  password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
   waitForConnections: true,
@@ -32,12 +31,12 @@ const getMeterYear = async (meterNumber) => {
   try {
     const connection = await pool.getConnection();
     const [rows] = await connection.execute(
-      "SELECT medidor_anio FROM medidor WHERE medidor_id = ?",
+      "SELECT medidor_year FROM medidor WHERE medidor_id = ?",
       [meterNumber]
     );
     connection.release();
     if (rows.length > 0) {
-      return rows[0].medidor_anio;
+      return rows[0].medidor_year;
     } else {
       return null;
     }
