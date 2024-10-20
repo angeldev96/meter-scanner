@@ -63,9 +63,9 @@ const App = () => {
 
   const handleChipClick = () => {
     if (systemType === 'nuevo') {
-      window.location.href = 'http://192.168.1.30';
+      window.open('http://192.168.1.30', '_blank');
     } else {
-      window.location.href = 'http://192.168.1.31';
+      window.open('https://192.168.1.31/juice36/index.juice?mode=login', '_blank');
     }
   };
 
