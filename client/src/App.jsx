@@ -49,7 +49,7 @@ const App = () => {
 
       if (data.year !== undefined && data.year !== null) {
         setYear(data.year);
-        setSystemType(data.year >= 2015 ? 'nuevo' : 'viejo');
+        setSystemType(data.year >= 2014 ? 'nuevo' : 'viejo');
       } else {
         console.log("No year data received from server");
       }
@@ -58,6 +58,14 @@ const App = () => {
       console.error('Error:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleChipClick = () => {
+    if (systemType === 'nuevo') {
+      window.location.href = 'http://192.168.1.30';
+    } else {
+      window.location.href = 'http://192.168.1.31';
     }
   };
 
@@ -87,7 +95,8 @@ const App = () => {
               <Chip
                 label={`Usar Sistema ${systemType}`}
                 color={systemType === 'nuevo' ? 'primary' : 'default'}
-                sx={{ mb: 1, bgcolor: systemType === 'viejo' ? 'lightcoral' : 'default' }}
+                sx={{ mb: 1, bgcolor: systemType === 'viejo' ? 'lightcoral' : 'default', cursor: 'pointer' }}
+                onClick={handleChipClick}
               />
               <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                 Año del medidor: {year}
