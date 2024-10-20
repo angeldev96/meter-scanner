@@ -62,11 +62,11 @@ const App = () => {
   };
 
   const handleChipClick = () => {
-    if (systemType === 'nuevo') {
-      window.open('http://192.168.1.30', '_blank');
-    } else {
-      window.open('https://192.168.1.31/juice36/index.juice?mode=login', '_blank');
-    }
+    const url = systemType === 'nuevo' 
+      ? 'http://192.168.1.30' 
+      : `https://192.168.1.31/juice36/index.juice?mode=login&meterNumber=${meterNumber}`;
+    
+    window.open(url, '_blank');
   };
 
   return (
