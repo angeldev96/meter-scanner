@@ -9,14 +9,15 @@ import {
 } from '@mui/material';
 
 const App = () => {
-  const [meterNumber, setMeterNumber] = useState('');
+  const [serialNumber, setSerialNumber] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [year, setYear] = useState(null);
   const [systemType, setSystemType] = useState(null);
+  const [lastTransactionDateTime, setLastTransactionDateTime] = useState(null);
 
   const handleMeterNumberChange = (event) => {
-    setMeterNumber(event.target.value.replace(/\s+/g, ''));
+    setSerialNumber(event.target.value.replace(/\s+/g, ''));
   };
 
   const handleKeyPress = (event) => {
@@ -26,7 +27,7 @@ const App = () => {
   };
 
   const handleSubmit = async () => {
-    if (meterNumber.trim() === '') {
+    if (serialNumber.trim() === '') {
       setMessage('El número de medidor no puede estar vacío.');
       return;
     }
@@ -35,23 +36,34 @@ const App = () => {
     setMessage('');
     setYear(null);
     setSystemType(null);
+    setLastTransactionDateTime(null); // Reiniciamos la fecha de la última transacción
     try {
-      const response = await fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/api/meter`, {
+      const response = await fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/api/lastTransaction`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ meterNumber }),
+        body: JSON.stringify({ serialNumber }),
       });
       const data = await response.json();
 
       setMessage(data.message);
 
-      if (data.year !== undefined && data.year !== null) {
-        setYear(data.year);
-        setSystemType(data.year >= 2014 ? 'nuevo' : 'viejo');
+      if (data.lastTransactionDateTime !== undefined && data.lastTransactionDateTime !== null) {
+        setLastTransactionDateTime(data.lastTransactionDateTime);
+
+        // Verificamos los primeros cuatro dígitos para determinar el año
+        if (serialNumber.startsWith('3712')) {
+          setYear(2012);
+          setSystemType('viejo');
+          setMessage('Usar Sistema Viejo');
+        } else {
+          setYear('reciente');
+          setSystemType('nuevo');
+          setMessage('Usar Sistema Nuevo');
+        }
       } else {
-        console.log("No year data received from server");
+        console.log("No se recibió información de la última transacción desde el servidor");
       }
     } catch (error) {
       setMessage('Error al procesar la solicitud. Por favor, inténtelo de nuevo.');
@@ -62,12 +74,21 @@ const App = () => {
   };
 
   const handleChipClick = () => {
-    const url = systemType === 'nuevo' 
-      ? 'http://192.168.1.30' 
-      : `https://192.168.1.31/juice36/index.juice?mode=login&meterNumber=${meterNumber}`;
-    
+    if (!lastTransactionDateTime) {
+      alert("No hay información de la última transacción disponible");
+      return;
+    }
+
+    // Formateamos la fecha de la última transacción para usarla en la URL
+    const formattedDate = new Date(lastTransactionDateTime).toISOString(); // ISO o ajusta a otro formato si lo necesitas
+
+    const url = systemType === 'nuevo'
+      ? 'http://192.168.1.30'
+      : `https://192.168.1.31/juice36/index.juice?mode=login&meterNumber=${serialNumber}&lastTransactionDate=${formattedDate}`;
+
     window.open(url, '_blank');
   };
+
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', bgcolor: 'grey.100' }}>
@@ -79,7 +100,7 @@ const App = () => {
           <TextField
             label="Número de Medidor"
             variant="outlined"
-            value={meterNumber}
+            value={serialNumber}
             onChange={handleMeterNumberChange}
             onKeyPress={handleKeyPress}
             sx={{ mr: 2, flexGrow: 1 }}
@@ -93,14 +114,26 @@ const App = () => {
           {year !== null && (
             <Box sx={{ mt: 2 }}>
               <Chip
-                label={`Usar Sistema ${systemType}`}
+                label={`Usar Sistema ${systemType === 'nuevo' ? 'Nuevo' : 'Viejo'}`}
                 color={systemType === 'nuevo' ? 'primary' : 'default'}
-                sx={{ mb: 1, bgcolor: systemType === 'viejo' ? 'lightcoral' : 'default', cursor: 'pointer' }}
+                sx={{
+                  mb: 1,
+                  bgcolor: systemType === 'viejo' ? 'lightcoral' : 'default',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    bgcolor: systemType === 'viejo' ? 'lightpink' : '#4fc3f7',
+                  },
+                }}
                 onClick={handleChipClick}
               />
               <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                 Año del medidor: {year}
               </Typography>
+              {lastTransactionDateTime && (
+                <Typography variant="body2" sx={{ marginTop: 1 }}>
+                  Última transacción: {new Date(lastTransactionDateTime).toLocaleString()}
+                </Typography>
+              )}
             </Box>
           )}
         </Box>
