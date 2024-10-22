@@ -10,6 +10,7 @@ import {
 
 const App = () => {
   const [serialNumber, setSerialNumber] = useState('');
+  const [account, setAccount] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [year, setYear] = useState(null);
@@ -79,12 +80,10 @@ const App = () => {
       return;
     }
 
-    // Formateamos la fecha de la última transacción para usarla en la URL
-    const formattedDate = new Date(lastTransactionDateTime).toISOString(); // ISO o ajusta a otro formato si lo necesitas
 
     const url = systemType === 'nuevo'
       ? 'http://192.168.1.30'
-      : `https://192.168.1.31/juice36/index.juice?mode=login&meterNumber=${serialNumber}&lastTransactionDate=${formattedDate}`;
+      : `https://192.168.1.31`;
 
     window.open(url, '_blank');
   };

@@ -51,13 +51,14 @@ const getLastTransactionDateTime = async (serialnumber) => {
   try {
     const connection = await pool.getConnection();
     const [rows] = await connection.execute(
-      "SELECT created FROM transactionspt1 WHERE serialnumber = ? ORDER BY created DESC LIMIT 1",
+      "SELECT created, account FROM transactionspt1 WHERE serialnumber = ? ORDER BY created DESC LIMIT 1",
       [serialnumber]
     );
     connection.release();
     
     if (rows.length > 0) {
-      return rows[0].created; // Retorna la fecha y hora de la última transacción
+      return rows[0]; // Retorna el primer registro
+      
     } else {
       return null; // Si no hay registros, retorna null
     }
