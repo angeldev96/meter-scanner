@@ -1,29 +1,7 @@
-const { NodeSSH } = require('node-ssh');
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-const ssh = new NodeSSH();
 
-const connectSSH = async () => {
-  await ssh.connect({
-    host: '192.168.1.31',
-    username: 'root',
-    password: 'Fl3x-Upco',
-    port: 8021,
-    algorithms: {
-      serverHostKey: ['ssh-rsa'],
-      kex: ['diffie-hellman-group1-sha1'], // Para el intercambio de claves
-    },
-  });
-
-  // Establecer un túnel a la base de datos
-  await ssh.forwardOut(
-    '127.0.0.1', // dirección local
-    3306,        // puerto local
-    '127.0.0.1', // dirección remota (localhost en el servidor)
-    3306         // puerto remoto (puerto de MySQL)
-  );
-};
 
 const pool = mysql.createPool({
   host: '127.0.0.1', // Cambiar a localhost
@@ -38,7 +16,6 @@ const pool = mysql.createPool({
 
 const connect = async () => {
   try {
-    await connectSSH(); // Conectar al túnel SSH
     const connection = await pool.getConnection();
     connection.release();
     console.log("Conexión exitosa a la base de datos", process.env.DB_NAME);
