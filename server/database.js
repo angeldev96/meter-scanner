@@ -28,7 +28,7 @@ const getLastTransactionDateTime = async (serialnumber) => {
   try {
     const connection = await pool.getConnection();
     const [rows] = await connection.execute(
-      "SELECT created, account FROM transactionspt1 WHERE serialnumber = ? ORDER BY created DESC LIMIT 1",
+      "SELECT created FROM transactionspt1 WHERE serialnumber = ? ORDER BY created DESC LIMIT 1",
       [serialnumber]
     );
     connection.release();

@@ -10,7 +10,6 @@ import {
 
 const App = () => {
   const [serialNumber, setSerialNumber] = useState('');
-  const [account, setAccount] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [year, setYear] = useState(null);
@@ -130,8 +129,7 @@ const App = () => {
               </Typography>
               {lastTransactionDateTime && (
                 <Typography variant="body2" sx={{ marginTop: 1 }}>
-                  Última transacción: {new Date(lastTransactionDateTime).toLocaleString()}
-                </Typography>
+                  Última transacción: {new Date(Date.parse(lastTransactionDateTime.created)).toLocaleString()}                </Typography>
               )}
             </Box>
           )}
