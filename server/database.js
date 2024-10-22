@@ -1,41 +1,33 @@
-const mysql = require('mysql2/promise');
-require('dotenv').config();
+const sqlite3 = require('sqlite3').verbose();
+const { open } = require('sqlite');
+const path = require('path');
 
-
-
-const pool = mysql.createPool({
-  host: '127.0.0.1', // Cambiar a localhost
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  port: 3306,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
+// Open the database
+const dbPromise = open({
+  filename: path.join(__dirname, 'meters.sqlite'),
+  driver: sqlite3.Database
 });
 
 const connect = async () => {
   try {
-    const connection = await pool.getConnection();
-    connection.release();
-    console.log("Conexión exitosa a la base de datos", process.env.DB_NAME);
+    const db = await dbPromise;
+    console.log("Conexión exitosa a la base de datos SQLite");
+    return db;
   } catch (error) {
-    console.error("Error al conectar con la base de datos:", error.message);
+    console.error("Error al conectar con la base de datos SQLite:", error.message);
   }
 };
 
 const getLastTransactionDateTime = async (serialnumber) => {
   try {
-    const connection = await pool.getConnection();
-    const [rows] = await connection.execute(
-      "SELECT created FROM transactionspt1 WHERE serialnumber = ? ORDER BY created DESC LIMIT 1",
+    const db = await dbPromise;
+    const row = await db.get(
+      "SELECT created FROM meters WHERE serialnumber = ? ORDER BY created DESC LIMIT 1",
       [serialnumber]
     );
-    connection.release();
     
-    if (rows.length > 0) {
-      return rows[0]; // Retorna el primer registro
-      
+    if (row) {
+      return row; // Retorna el primer registro
     } else {
       return null; // Si no hay registros, retorna null
     }
