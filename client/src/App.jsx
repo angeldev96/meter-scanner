@@ -109,19 +109,21 @@ const App = () => {
           <Typography variant="body1">{message}</Typography>
           {year !== null && (
             <Box sx={{ mt: 2 }}>
-              <Chip
-                label={`Usar Sistema ${systemType === 'nuevo' ? 'Nuevo' : 'Viejo'}`}
-                color={systemType === 'nuevo' ? 'primary' : 'default'}
-                sx={{
-                  mb: 1,
-                  bgcolor: systemType === 'viejo' ? 'lightcoral' : 'default',
-                  cursor: 'pointer',
-                  '&:hover': {
-                    bgcolor: systemType === 'viejo' ? 'lightpink' : '#4fc3f7',
-                  },
-                }}
-                onClick={handleChipClick}
-              />
+              <Button
+  variant="contained"
+  color={systemType === 'nuevo' ? 'primary' : 'default'}
+  sx={{
+    mb: 1,
+    bgcolor: systemType === 'viejo' ? 'lightcoral' : 'default',
+    cursor: 'pointer',
+    '&:hover': {
+      bgcolor: systemType === 'viejo' ? 'lightpink' : '#4fc3f7',
+    },
+  }}
+  onClick={handleChipClick}
+>
+  {`Usar Sistema ${systemType === 'nuevo' ? 'Nuevo' : 'Viejo'}`}
+</Button>
               <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                 Año del medidor: {year}
               </Typography>
