@@ -83,7 +83,7 @@ const App = () => {
 
     const url = systemType === 'nuevo'
       ? 'http://192.168.1.30'
-      : `https://192.168.1.31`;
+      : 'https://192.168.1.31/juice36/index.juice?mode=accounts';
 
     window.open(url, '_blank');
   };
