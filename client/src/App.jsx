@@ -56,11 +56,9 @@ const App = () => {
         if (serialNumber.startsWith('3712')) {
           setYear(2012);
           setSystemType('viejo');
-          setMessage('Usar Sistema Viejo');
         } else {
           setYear('reciente');
           setSystemType('nuevo');
-          setMessage('Usar Sistema Nuevo');
         }
       } else {
         console.log("No se recibió información de la última transacción desde el servidor");
