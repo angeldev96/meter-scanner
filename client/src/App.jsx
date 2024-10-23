@@ -5,7 +5,6 @@ import {
   TextField,
   Button,
   Paper,
-  Chip,
 } from '@mui/material';
 
 const App = () => {
@@ -36,7 +35,8 @@ const App = () => {
     setMessage('');
     setYear(null);
     setSystemType(null);
-    setLastTransactionDateTime(null); // Reiniciamos la fecha de la última transacción
+    setLastTransactionDateTime(null);
+    
     try {
       const response = await fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/api/lastTransaction`, {
         method: 'POST',
@@ -52,9 +52,11 @@ const App = () => {
       if (data.lastTransactionDateTime !== undefined && data.lastTransactionDateTime !== null) {
         setLastTransactionDateTime(data.lastTransactionDateTime);
 
-        // Verificamos los primeros cuatro dígitos para determinar el año
-        if (serialNumber.startsWith('3712')) {
-          setYear(2012);
+        // Verificamos si comienza con 3712 (2012) o 3713 (2013)
+        if (serialNumber.startsWith('3712') || serialNumber.startsWith('3713')) {
+          // Determinamos el año basado en los primeros 4 dígitos
+          const year = serialNumber.startsWith('3712') ? 2012 : 2013;
+          setYear(year);
           setSystemType('viejo');
         } else {
           setYear('reciente');
@@ -77,14 +79,13 @@ const App = () => {
       return;
     }
 
-
+    // La URL para sistema viejo (2012 y 2013) es la misma
     const url = systemType === 'nuevo'
       ? 'http://192.168.1.30'
       : 'https://192.168.1.31/juice36/index.juice?mode=accounts';
 
     window.open(url, '_blank');
   };
-
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', bgcolor: 'grey.100' }}>
@@ -110,26 +111,27 @@ const App = () => {
           {year !== null && (
             <Box sx={{ mt: 2 }}>
               <Button
-  variant="contained"
-  color={systemType === 'nuevo' ? 'primary' : 'default'}
-  sx={{
-    mb: 1,
-    bgcolor: systemType === 'viejo' ? 'lightcoral' : 'default',
-    cursor: 'pointer',
-    '&:hover': {
-      bgcolor: systemType === 'viejo' ? 'lightpink' : '#4fc3f7',
-    },
-  }}
-  onClick={handleChipClick}
->
-  {`Usar Sistema ${systemType === 'nuevo' ? 'Nuevo' : 'Viejo'}`}
-</Button>
+                variant="contained"
+                color={systemType === 'nuevo' ? 'primary' : 'default'}
+                sx={{
+                  mb: 1,
+                  bgcolor: systemType === 'viejo' ? 'lightcoral' : 'default',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    bgcolor: systemType === 'viejo' ? 'lightpink' : '#4fc3f7',
+                  },
+                }}
+                onClick={handleChipClick}
+              >
+                {`Usar Sistema ${systemType === 'nuevo' ? 'Nuevo' : 'Viejo'}`}
+              </Button>
               <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                 Año del medidor: {year}
               </Typography>
               {lastTransactionDateTime && (
                 <Typography variant="body2" sx={{ marginTop: 1 }}>
-                  Última transacción: {new Date(Date.parse(lastTransactionDateTime.created)).toLocaleString()}                </Typography>
+                  Última transacción: {new Date(Date.parse(lastTransactionDateTime.created)).toLocaleString()}
+                </Typography>
               )}
             </Box>
           )}
