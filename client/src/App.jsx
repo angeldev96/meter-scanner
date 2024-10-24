@@ -36,7 +36,7 @@ const App = () => {
     setYear(null);
     setSystemType(null);
     setLastTransactionDateTime(null);
-    
+
     try {
       const response = await fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/api/lastTransaction`, {
         method: 'POST',
@@ -130,7 +130,7 @@ const App = () => {
               </Typography>
               {lastTransactionDateTime && (
                 <Typography variant="body2" sx={{ marginTop: 1 }}>
-                  Última transacción: {new Date(Date.parse(lastTransactionDateTime.created)).toLocaleString()}
+                  Última transacción: {lastTransactionDateTime.created}
                 </Typography>
               )}
             </Box>
