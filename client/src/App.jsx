@@ -73,20 +73,6 @@ const App = () => {
     }
   };
 
-  const handleChipClick = () => {
-    if (!lastTransactionDateTime) {
-      alert("No hay información de la última transacción disponible");
-      return;
-    }
-
-    // La URL para sistema viejo (2012 y 2013) es la misma
-    const url = systemType === 'nuevo'
-      ? 'http://192.168.1.30'
-      : 'https://192.168.1.31/juice36/index.juice?mode=accounts';
-
-    window.open(url, '_blank');
-  };
-
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', bgcolor: 'grey.100' }}>
       <Paper elevation={3} sx={{ p: 4, m: 'auto', maxWidth: 400, width: '100%', textAlign: 'center' }}>
@@ -121,18 +107,13 @@ const App = () => {
                     bgcolor: systemType === 'viejo' ? 'lightpink' : '#4fc3f7',
                   },
                 }}
-                onClick={handleChipClick}
               >
-                {`Usar Sistema ${systemType === 'nuevo' ? 'Nuevo' : 'Viejo'}`}
+                {systemType === 'nuevo' ? 'Este medidor ocupa ser reseteado con los dos tokens' : 'Medidor viejo, cuidado, no se debe actualizar'}
               </Button>
               <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
                 Año del medidor: {year}
               </Typography>
-              {lastTransactionDateTime && (
-                <Typography variant="body2" sx={{ marginTop: 1 }}>
-                  Última transacción: {lastTransactionDateTime.created}
-                </Typography>
-              )}
+           
             </Box>
           )}
         </Box>
