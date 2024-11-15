@@ -38,7 +38,7 @@ const App = () => {
     setLastTransactionDateTime(null);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/api/lastTransaction`, {
+      const response = await fetch(`${import.meta.env.VITE_API_HOST}/api/lastTransaction`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
