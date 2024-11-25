@@ -1,21 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
   TextField,
   Button,
   Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
 } from '@mui/material';
 
 const App = () => {
   const [serialNumber, setSerialNumber] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [year, setYear] = useState(null);
-  const [systemType, setSystemType] = useState(null);
-  const [lastTransactionDateTime, setLastTransactionDateTime] = useState(null);
+  const [meters, setMeters] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const handleMeterNumberChange = (event) => {
+  useEffect(() => {
+    fetchMeters();
+  }, [page, rowsPerPage]);
+
+  const handleSerialNumberChange = (event) => {
     setSerialNumber(event.target.value.replace(/\s+/g, ''));
   };
 
@@ -33,37 +44,20 @@ const App = () => {
 
     setLoading(true);
     setMessage('');
-    setYear(null);
-    setSystemType(null);
-    setLastTransactionDateTime(null);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_HOST}/api/lastTransaction`, {
+      const response = await fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/api/addMeter`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ serialNumber }),
+        body: JSON.stringify({ serialnumber: serialNumber }),
       });
       const data = await response.json();
 
       setMessage(data.message);
-
-      if (data.lastTransactionDateTime !== undefined && data.lastTransactionDateTime !== null) {
-        setLastTransactionDateTime(data.lastTransactionDateTime);
-
-        // Verificamos si comienza con 3712 (2012) o 3713 (2013)
-        if (serialNumber.startsWith('3712') || serialNumber.startsWith('3713')) {
-          // Determinamos el año basado en los primeros 4 dígitos
-          const year = serialNumber.startsWith('3712') ? 2012 : 2013;
-          setYear(year);
-          setSystemType('viejo');
-        } else {
-          setYear('reciente');
-          setSystemType('nuevo');
-        }
-      } else {
-        console.log("No se recibió información de la última transacción desde el servidor");
+      if (data.meterId) {
+        fetchMeters();
       }
     } catch (error) {
       setMessage('Error al procesar la solicitud. Por favor, inténtelo de nuevo.');
@@ -73,50 +67,71 @@ const App = () => {
     }
   };
 
+  const fetchMeters = async () => {
+    try {
+      const response = await fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/api/meters?page=${page + 1}&limit=${rowsPerPage}`);
+      const data = await response.json();
+      setMeters(data.meters);
+    } catch (error) {
+      console.error('Error al obtener los medidores:', error);
+    }
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', bgcolor: 'grey.100' }}>
-      <Paper elevation={3} sx={{ p: 4, m: 'auto', maxWidth: 400, width: '100%', textAlign: 'center' }}>
+      <Paper elevation={3} sx={{ p: 4, m: 'auto', maxWidth: 800, width: '100%', textAlign: 'center' }}>
         <Typography variant="h5" gutterBottom component="div">
-          Identificación de Medidor
+          Registro de Medidores
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
           <TextField
             label="Número de Medidor"
             variant="outlined"
             value={serialNumber}
-            onChange={handleMeterNumberChange}
+            onChange={handleSerialNumberChange}
             onKeyPress={handleKeyPress}
             sx={{ mr: 2, flexGrow: 1 }}
           />
           <Button variant="contained" onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Procesando...' : 'Identificar'}
+            {loading ? 'Procesando...' : 'Registrar'}
           </Button>
         </Box>
-        <Box sx={{ textAlign: 'center', mt: 2 }}>
-          <Typography variant="body1">{message}</Typography>
-          {year !== null && (
-            <Box sx={{ mt: 2 }}>
-              <Button
-                variant="contained"
-                color={systemType === 'nuevo' ? 'primary' : 'default'}
-                sx={{
-                  mb: 1,
-                  bgcolor: systemType === 'viejo' ? 'lightcoral' : 'default',
-                  cursor: 'pointer',
-                  '&:hover': {
-                    bgcolor: systemType === 'viejo' ? 'lightpink' : '#4fc3f7',
-                  },
-                }}
-              >
-                {systemType === 'nuevo' ? 'Este medidor ocupa ser reseteado con los dos tokens' : 'Medidor viejo, cuidado, no se debe actualizar'}
-              </Button>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                Año del medidor: {year}
-              </Typography>
-           
-            </Box>
-          )}
-        </Box>
+        <Typography variant="body1" sx={{ mb: 2 }}>{message}</Typography>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Medidores migrados para usar en Juice Nuevo</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {meters.map((meter) => (
+                <TableRow key={meter.id}>
+                  <TableCell>{meter.id}</TableCell>
+                  <TableCell>{meter.serialnumber}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          component="div"
+          count={meters.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Paper>
     </Box>
   );
