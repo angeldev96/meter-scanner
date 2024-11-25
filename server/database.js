@@ -48,7 +48,7 @@ const insertMeter = async (serialnumber) => {
   try {
     const connection = await pool.getConnection();
     const [result] = await connection.execute(
-      "INSERT INTO medidores (serialnumber) VALUES (?)",
+      "INSERT INTO medidores_migrados (serialnumber) VALUES (?)",
       [serialnumber]
     );
     connection.release();
@@ -59,14 +59,10 @@ const insertMeter = async (serialnumber) => {
 };
 
 
-const getMeters = async (page, limit) => {
+const getMeters = async () => {
   try {
     const connection = await pool.getConnection();
-    const offset = (page - 1) * limit;
-    const [rows] = await connection.execute(
-      "SELECT * FROM medidores LIMIT ? OFFSET ?",
-      [limit, offset]
-    );
+    const [rows] = await connection.execute("SELECT * FROM medidores_migrados");
     connection.release();
     return rows;
   } catch (error) {

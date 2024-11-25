@@ -19,10 +19,8 @@ app.use(
 
 
 app.get("/api/meters", async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
-
   try {
-    const meters = await db.getMeters(parseInt(page), parseInt(limit));
+    const meters = await db.getMeters();
     res.json({ meters });
   } catch (error) {
     console.error("Error al obtener los medidores:", error);

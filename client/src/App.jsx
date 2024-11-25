@@ -11,7 +11,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TablePagination,
 } from '@mui/material';
 
 const App = () => {
@@ -19,12 +18,10 @@ const App = () => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [meters, setMeters] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
     fetchMeters();
-  }, [page, rowsPerPage]);
+  }, []);
 
   const handleSerialNumberChange = (event) => {
     setSerialNumber(event.target.value.replace(/\s+/g, ''));
@@ -69,21 +66,12 @@ const App = () => {
 
   const fetchMeters = async () => {
     try {
-      const response = await fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/api/meters?page=${page + 1}&limit=${rowsPerPage}`);
+      const response = await fetch(`http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}/api/meters`);
       const data = await response.json();
       setMeters(data.meters);
     } catch (error) {
       console.error('Error al obtener los medidores:', error);
     }
-  };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
   };
 
   return (
@@ -106,7 +94,7 @@ const App = () => {
           </Button>
         </Box>
         <Typography variant="body1" sx={{ mb: 2 }}>{message}</Typography>
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto' }}>
           <Table>
             <TableHead>
               <TableRow>
@@ -124,14 +112,6 @@ const App = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
-          component="div"
-          count={meters.length}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
       </Paper>
     </Box>
   );
